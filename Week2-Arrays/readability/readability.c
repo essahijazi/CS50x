@@ -1,3 +1,5 @@
+// Project URL: https://cs50.harvard.edu/x/2024/psets/2/readability/
+
 #include <ctype.h>
 #include <cs50.h>
 #include <math.h>
