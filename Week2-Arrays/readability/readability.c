@@ -45,4 +45,6 @@ int main(void)
     }else {
         printf("Grade %i\n", index);
     }
+
+    printf("%d, %d, %d\n", letters, words, sentences);
 }

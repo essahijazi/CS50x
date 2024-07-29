@@ -1,5 +1,3 @@
-// Project URL: https://cs50.harvard.edu/x/2024/psets/3/plurality/
-
 #include <cs50.h>
 #include <stdio.h>
 #include <string.h>
@@ -67,15 +65,12 @@ int main(int argc, string argv[])
 // Update vote totals given a new vote
 bool vote(string name)
 {
-    for (int i = 0; i < candidate_count; i++)
-    {
-        if (strcmp(name, candidates[i].name) == 0)
-        {
+    for (int i = 0; i < candidate_count; i++) {
+        if (strcmp(candidates[i].name, name) == 0) {
             candidates[i].votes++;
             return true;
         }
     }
-
     return false;
 }
 
@@ -84,21 +79,16 @@ void print_winner(void)
 {
     int totalVotes = 0;
 
-    // Check to see who has the highest number of votes
-    for (int i = 0; i < candidate_count; i++)
-    {
-        if (candidates[i].votes > totalVotes)
-        {
+    for (int i = 0; i < candidate_count; i++) {
+        if (candidates[i].votes > totalVotes) {
             totalVotes = candidates[i].votes;
         }
     }
 
-    // Prints the names of who has the highest number of votes
-    for (int i = 0; i < candidate_count; i++)
-    {
-        if (candidates[i].votes == totalVotes)
-        {
+    for (int i = 0; i < candidate_count; i++) {
+        if (candidates[i].votes == totalVotes) {
             printf("%s\n", candidates[i].name);
         }
     }
+    return;
 }

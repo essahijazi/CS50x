@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <title>Trivia!</title>
+    <script>
+        function checkAnswer(button, isCorrect) {
+
+            var buttons = document.getElementsByClassName('button');
+
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.backgroundColor = "";
+            }
+
+            let q1Feedback = document.querySelector('#q1Feedback');
+
+            if (isCorrect) {
+                q1Feedback.innerHTML = "Correct!";
+                button.style.backgroundColor = "green";
+            } else {
+                q1Feedback.innerHTML = "Incorrect";
+                button.style.backgroundColor = "red";
+            }
+        }
+
+        function checkFreeResponse() {
+            let correctAnswer = "lexus";
+            let textField = document.getElementById("freeRespnseAnswer");
+            let userAnswer = textField.value.trim().toLowerCase();
+            let q2Feedback = document.querySelector('#q2Feedback');
+
+            if (userAnswer == correctAnswer) {
+                q2Feedback.innerHTML = "Correct";
+                textField.style.backgroundColor = "green";
+            }else {
+                q2Feedback.innerHTML = "Incorrect";
+                textField.style.backgroundColor = "red";
+            }
+
+
+
+
+
+        }
+
+
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>Trivia!</h1>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2>Part 1: Multiple Choice</h2>
+            <hr>
+            <h3>Which of these is your favorite car brand?</h3>
+            <h5 id="q1Feedback"></h5>
+            <button class="button" onclick="checkAnswer(this, false)">Audi</button>
+            <button class="button" onclick="checkAnswer(this, false)">BMW</button>
+            <button class="button" onclick="checkAnswer(this, true)">Lexus</button>
+            <button class="button" onclick="checkAnswer(this, false)">Mercedes</button>
+        </div>
+
+        <div class="section">
+            <h2>Part 2: Free Response</h2>
+            <hr>
+            <h3>What car brand is the most reliable?</h3>
+            <h5 id="q2Feedback"></h5>
+            <input type="text" id="freeRespnseAnswer" placeholder="Car Brand"/>
+            <button onClick="checkFreeResponse()">Confirm</button>
+        </div>
+    </div>
+</body>
+</html>

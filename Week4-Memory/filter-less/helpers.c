@@ -1,150 +1,93 @@
-#include <getopt.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "helpers.h"
+#include <math.h>
 
-int main(int argc, char *argv[])
+// Convert image to grayscale
+void grayscale(int height, int width, RGBTRIPLE image[height][width])
 {
-    // Define allowable filters
-    char *filters = "bgrs";
+    for (int i  = 0; i < height; i++){
+        for (int j = 0; j < width; j++) {
 
-    // Get filter flag and check validity
-    char filter = getopt(argc, argv, filters);
-    if (filter == '?')
-    {
-        printf("Invalid filter.\n");
-        return 1;
+            // avg of rgb for that pixel
+            int avg = round((image[i][j].rgbtRed + image[i][j].rgbtGreen + image[i][j].rgbtBlue) / 3.0);
+
+            image[i][j].rgbtRed = avg;
+            image[i][j].rgbtGreen = avg;
+            image[i][j].rgbtBlue = avg;
+        }
     }
+}
 
-    // Ensure only one filter
-    if (getopt(argc, argv, filters) != -1)
-    {
-        printf("Only one filter allowed.\n");
-        return 2;
+// Convert image to sepia
+void sepia(int height, int width, RGBTRIPLE image[height][width])
+{
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+
+            int sepiaRed = round(.393 * image[i][j].rgbtRed + .769 * image[i][j].rgbtGreen + .189 * image[i][j].rgbtBlue);
+            int sepiaGreen = round(.349 * image[i][j].rgbtRed + .686 * image[i][j].rgbtGreen + .168 * image[i][j].rgbtBlue);
+            int sepiaBlue = round(.272 * image[i][j].rgbtRed + .534 * image[i][j].rgbtGreen + .131 * image[i][j].rgbtBlue);
+
+            // printf("sepiaRed: %i", sepiaRed);
+            // printf("sepiaGreen: %i", sepiaGreen);
+            // printf("sepiaBlue: %i", sepiaBlue);
+            image[i][j].rgbtRed = sepiaRed > 255 ? 255 : sepiaRed;
+            image[i][j].rgbtGreen = sepiaGreen > 255 ? 255 : sepiaGreen;
+            image[i][j].rgbtBlue = sepiaBlue > 255 ? 255 : sepiaBlue;
+        }
+    }}
+
+// Reflect image horizontally
+void reflect(int height, int width, RGBTRIPLE image[height][width])
+{
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width / 2; j++) {
+            RGBTRIPLE temp = image[i][j];
+            image[i][j] = image[i][width - (j + 1)];
+            image[i][width - (j + 1)] = temp;
+        }
     }
+}
 
-    // Ensure proper usage
-    if (argc != optind + 2)
-    {
-        printf("Usage: ./filter [flag] infile outfile\n");
-        return 3;
-    }
-
-    // Remember filenames
-    char *infile = argv[optind];
-    char *outfile = argv[optind + 1];
-
-    // Open input file
-    FILE *inptr = fopen(infile, "r");
-    if (inptr == NULL)
-    {
-        printf("Could not open %s.\n", infile);
-        return 4;
-    }
-
-    // Open output file
-    FILE *outptr = fopen(outfile, "w");
-    if (outptr == NULL)
-    {
-        fclose(inptr);
-        printf("Could not create %s.\n", outfile);
-        return 5;
-    }
-
-    // Read infile's BITMAPFILEHEADER
-    BITMAPFILEHEADER bf;
-    fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr);
-
-    // Read infile's BITMAPINFOHEADER
-    BITMAPINFOHEADER bi;
-    fread(&bi, sizeof(BITMAPINFOHEADER), 1, inptr);
-
-    // Ensure infile is (likely) a 24-bit uncompressed BMP 4.0
-    if (bf.bfType != 0x4d42 || bf.bfOffBits != 54 || bi.biSize != 40 ||
-        bi.biBitCount != 24 || bi.biCompression != 0)
-    {
-        fclose(outptr);
-        fclose(inptr);
-        printf("Unsupported file format.\n");
-        return 6;
-    }
-
-    // Get image's dimensions
-    int height = abs(bi.biHeight);
-    int width = bi.biWidth;
-
-    // Allocate memory for image
-    RGBTRIPLE(*image)[width] = calloc(height, width * sizeof(RGBTRIPLE));
-    if (image == NULL)
-    {
-        printf("Not enough memory to store image.\n");
-        fclose(outptr);
-        fclose(inptr);
-        return 7;
-    }
-
-    // Determine padding for scanlines
-    int padding = (4 - (width * sizeof(RGBTRIPLE)) % 4) % 4;
-
-    // Iterate over infile's scanlines
+// Blur image
+void blur(int height, int width, RGBTRIPLE image[height][width])
+{
+    // Create a copy of image
+    RGBTRIPLE copy[height][width];
     for (int i = 0; i < height; i++)
     {
-        // Read row into pixel array
-        fread(image[i], sizeof(RGBTRIPLE), width, inptr);
-
-        // Skip over padding
-        fseek(inptr, padding, SEEK_CUR);
-    }
-
-    // Filter image
-    switch (filter)
-    {
-        // Blur
-        case 'b':
-            blur(height, width, image);
-            break;
-
-        // Grayscale
-        case 'g':
-            grayscale(height, width, image);
-            break;
-
-        // Reflection
-        case 'r':
-            reflect(height, width, image);
-            break;
-
-        // Sepia
-        case 's':
-            sepia(height, width, image);
-            break;
-    }
-
-    // Write outfile's BITMAPFILEHEADER
-    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
-
-    // Write outfile's BITMAPINFOHEADER
-    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
-
-    // Write new pixels to outfile
-    for (int i = 0; i < height; i++)
-    {
-        // Write row to outfile
-        fwrite(image[i], sizeof(RGBTRIPLE), width, outptr);
-
-        // Write padding at end of row
-        for (int k = 0; k < padding; k++)
+        for (int j = 0; j < width; j++)
         {
-            fputc(0x00, outptr);
+            copy[i][j] = image[i][j];
         }
     }
 
-    // Free memory for image
-    free(image);
+     // Iterate over each pixel in the image
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int sumRed = 0, sumGreen = 0, sumBlue = 0;
+            float count = 0;
 
-    // Close files
-    fclose(inptr);
-    fclose(outptr);
-    return 0;
+            // Iterate over the 3x3 box around the pixel
+            for (int di = -1; di <= 1; di++) {
+                for (int dj = -1; dj <= 1; dj++) {
+                    int ni = i + di;
+                    int nj = j + dj;
+
+                    // Ensure the neighboring pixel is within the image bounds
+                    if (ni >= 0 && ni < height && nj >= 0 && nj < width) {
+                        sumRed += copy[ni][nj].rgbtRed;
+                        sumGreen += copy[ni][nj].rgbtGreen;
+                        sumBlue += copy[ni][nj].rgbtBlue;
+                        count++;
+                    }
+                }
+            }
+
+            // Calculate the average color values
+            image[i][j].rgbtRed = round(sumRed / count);
+            image[i][j].rgbtGreen = round(sumGreen / count);
+            image[i][j].rgbtBlue = round(sumBlue / count);
+        }
+    }
 }

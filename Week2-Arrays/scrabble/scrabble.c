@@ -24,10 +24,10 @@ int main(void)
     if (score1 > score2) {
         printf("Player 1 wins!");
     
-    }else if (score2 > score1) {
+    } else if (score2 > score1) {
         printf("Player 2 wins!");
     
-    }else {
+    } else {
         printf("Tie!");
     }
 }
@@ -42,7 +42,7 @@ int compute_score(string word) {
         
             score += POINTS[word[i] - 65];
         
-        }else if (islower(word[i])) {
+        } else if (islower(word[i])) {
         
             score += POINTS[word[i] - 97];
         
