@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Sudoku Solver</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" defer></script>
+  </head>
+  <body>
+    <div class="container text-center">
+      <h1>Sudoku Solver</h1>
+      <form action="/" method="post">
+        <div class="table-container">
+          <table>
+            {% for i in range(9) %}
+            <tr>
+              {% for j in range(9) %}
+              <td>
+                <input type="text" name="cell-{{i}}-{{j}}" maxlength="1" placeholder="0" value="{{ board[i][j] if board[i][j] != 0 else '' }}">
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <button type="submit" name="solve" class="btn btn-primary">Solve</button>
+          <button type="submit" name="reset" class="btn btn-secondary">Reset</button>
+        </div>
+      </form>
+    </div>
+    <footer>
+      <p>&copy; 2024 Sudoku Solver. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
